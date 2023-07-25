@@ -809,6 +809,24 @@ static std::string GetHomeDir()
 }
 
 /**
+ * Gets the user's personal directory.
+ * @return Custom directory if it exists, default personal dir as fallback.
+ */
+static std::string GetPersonalDir()
+{
+#ifdef __APPLE__
+	std::string homedir = GetHomeDir();
+	std::string custom_personal = ".openttd";
+
+	const std::filesystem::path custom_path = homedir + PATHSEP + custom_personal;
+
+	if (std::filesystem::exists(custom_path))
+		return custom_personal;
+#endif
+	return PERSONAL_DIR;
+}
+
+/**
  * Determine the base (personal dir and game data dir) paths
  * @param exe the path to the executable
  */
@@ -850,7 +868,7 @@ void DetermineBasePaths(const char *exe)
 	if (!homedir.empty()) {
 		tmp = homedir;
 		tmp += PATHSEP;
-		tmp += PERSONAL_DIR;
+		tmp += GetPersonalDir();
 		AppendPathSeparator(tmp);
 		_searchpaths[SP_PERSONAL_DIR] = tmp;
 
